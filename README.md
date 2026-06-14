@@ -12,6 +12,9 @@
 
 ---
 
+
+![header](screenshots/header.png)
+
 ## Domain model
 
 One-to-many: a pain point can have multiple AI solutions (different maturity levels, different stacks, different price points).
