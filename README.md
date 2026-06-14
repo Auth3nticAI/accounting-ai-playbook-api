@@ -1,68 +1,63 @@
 # Accounting AI Playbook — API
 
-Backend for the Accounting AI Playbook: a library of accounting pain points and the AI solutions that address them. Built for solo founders running AI-for-accounting consultancies, so prospect conversations can land on real, priced, tech-stacked solutions instead of vague pitches.
+> Backend for [Accounting AI Playbook](https://github.com/Auth3nticAI/accounting-ai-playbook). A catalog of recurring accounting pain points (close cycle, AP coding, audit prep) mapped to AI solutions you can actually offer — each with stack, maturity level, setup days, and a target price.
+>
+> Built so a solo AI-for-accounting consultant can show up to a prospect call with priced, tech-stacked answers instead of vapor.
 
-CSE552 Mini Project 2 — full-stack CRUD with a one-to-many relationship.
+![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?style=flat&logo=fastapi&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=flat)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat&logo=postgresql&logoColor=white)
+![Pydantic](https://img.shields.io/badge/Pydantic-2.13-E92063?style=flat&logo=pydantic&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white)
 
-## Stack
-
-- **FastAPI** for the HTTP layer
-- **SQLAlchemy** ORM
-- **PostgreSQL 16** via Docker Compose
-- **Pydantic** for request/response validation
+---
 
 ## Domain model
 
-Two tables with a one-to-many relationship:
+One-to-many: a pain point can have multiple AI solutions (different maturity levels, different stacks, different price points).
 
 ```
 pain_points (1) ──< (many) ai_solutions
 ```
 
-- **`pain_points`** — a recurring accounting problem (title, description, category, firm_size_fit, severity)
-- **`ai_solutions`** — an AI-backed approach to a pain point (title, description, tech_stack, maturity, setup_days, pricing_model, estimated_price_usd)
+- **`pain_points`** — `title`, `description`, `category`, `firm_size_fit`, `severity`
+- **`ai_solutions`** — `title`, `description`, `tech_stack`, `maturity`, `setup_days`, `pricing_model`, `estimated_price_usd`
 
-A single pain point can have multiple solutions (different maturity levels, different stacks, different pricing).
+`ON DELETE CASCADE` on the FK so removing a pain point cleans up its mapped solutions.
+
+## Endpoints
+
+| Method | Path | What it does |
+|---|---|---|
+| `GET` | `/health` | Health check |
+| `GET` | `/stats` | Aggregate counts (by category, severity, maturity) — drives the frontend home page |
+| `GET` | `/categories` | Distinct pain-point categories |
+| `GET` | `/pain-points` | List + filter by `?category=` and `?severity=` |
+| `POST` | `/pain-points` | Create |
+| `GET` | `/pain-points/{id}` | Detail + all mapped solutions |
+| `PUT` | `/pain-points/{id}` | Partial update |
+| `DELETE` | `/pain-points/{id}` | Delete (cascades) |
+| `POST` | `/pain-points/{id}/solutions` | Add a solution to a pain point |
+| `PUT` | `/solutions/{id}` | Partial update |
+| `DELETE` | `/solutions/{id}` | Delete a single solution |
 
 ## Run
 
 ```bash
-# 1. Start Postgres
 docker compose up -d db
-
-# 2. Activate venv and install
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
-# 3. Seed sample data (7 pain points + 9 solutions)
+# Seed 7 pain points + 9 solutions
 python seed.py
 
-# 4. Start the API
+# Start the API
 uvicorn main:app --reload
 ```
 
-Open http://localhost:8000/docs for the Swagger UI.
+Swagger UI: http://localhost:8000/docs
 
-## Endpoints
-
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/health` | Health check |
-| GET | `/stats` | Aggregate counts (by category, severity, maturity) |
-| GET | `/categories` | List of distinct pain-point categories |
-| GET | `/pain-points` | List all pain points (filter by `?category=` or `?severity=`) |
-| POST | `/pain-points` | Create a new pain point |
-| GET | `/pain-points/{id}` | Pain point detail with all its solutions |
-| PUT | `/pain-points/{id}` | Update a pain point (partial) |
-| DELETE | `/pain-points/{id}` | Delete a pain point (cascades to solutions) |
-| POST | `/pain-points/{id}/solutions` | Add a new solution to a pain point |
-| PUT | `/solutions/{id}` | Update a solution (partial) |
-| DELETE | `/solutions/{id}` | Delete a solution |
-
-## Environment
-
-Create `.env` (gitignored):
+## Env
 
 ```
 DATABASE_URL=postgresql://postgres:password@localhost:5432/playbook
@@ -72,11 +67,15 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/playbook
 
 ```
 .
-├── main.py            # FastAPI app + route handlers + CORS
-├── database.py        # Engine, SessionLocal, Base, get_db dependency
-├── models.py          # SQLAlchemy ORM models (PainPoint, AISolution)
-├── schemas.py         # Pydantic request/response schemas
-├── seed.py            # Idempotent seed script
-├── docker-compose.yml # Postgres service
+├── main.py             # FastAPI routes
+├── database.py         # Engine, SessionLocal, Base, get_db
+├── models.py           # SQLAlchemy ORM
+├── schemas.py          # Pydantic
+├── seed.py             # Idempotent realistic seed data
+├── docker-compose.yml  # Postgres service
 └── requirements.txt
 ```
+
+## Background
+
+Built as Mini Project 2 for **CSE552 — Fullstack Software Development in the Age of AI Agents**.
