@@ -1,5 +1,7 @@
 # Accounting AI Playbook — API
 
+![CI](https://github.com/Auth3nticAI/accounting-ai-playbook-api/actions/workflows/ci.yml/badge.svg)
+
 > Backend for [Accounting AI Playbook](https://github.com/Auth3nticAI/accounting-ai-playbook). A catalog of recurring accounting pain points (close cycle, AP coding, audit prep) mapped to AI solutions you can actually offer — each with stack, maturity level, setup days, and a target price.
 >
 > Built so a solo AI-for-accounting consultant can show up to a prospect call with priced, tech-stacked answers instead of vapor.
